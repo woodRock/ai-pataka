@@ -1,0 +1,7 @@
+talks/*/build/
+__pycache__/
+*.aux
+*.log
+*.xdv
+*.fls
+*.fdb_latexmk

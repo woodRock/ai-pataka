@@ -1,0 +1,59 @@
+# Series-wide settings shared by every talk.
+# Edit once; each talk in talks/<slug>/talk.yaml only holds per-talk details.
+
+series:
+  name: "AI Pātaka"                    # shown as the eyebrow above "LECTURE SERIES"
+  name_ascii: "AI Pataka"              # used in filenames / calendar UIDs
+  tagline: "Lecture Series"
+  group: "Abundant Intelligences"
+  pod: "Hiringa te Mahara"
+  # One paragraph used in the email after the announcement sentence.
+  # REVIEW: adjust wording to how the pod describes itself.
+  description: >-
+    The AI Pātaka lecture series is hosted by the Hiringa te Mahara pod of
+    Abundant Intelligences, an Indigenous-led research programme reimagining
+    artificial intelligence from Indigenous knowledge systems. A pātaka is a
+    storehouse for treasured kai and taonga; this series gathers kōrero
+    from researchers and communities on the ethical, culturally grounded
+    development of AI in Aotearoa and beyond.
+
+# Host time zone. Talk times in talk.yaml are written in this zone.
+host_timezone: "Pacific/Auckland"
+
+# Time zones listed in the email ("Event date and time based on time zone").
+# label: what readers see; tz: IANA name. Abbreviations (NZDT, HST, ...) are
+# computed automatically, so daylight saving is always correct.
+timezones:
+  # Labelled by city on purpose: some Canadian provinces have moved to
+  # permanent daylight time, so "Pacific/Mountain/Central" no longer map
+  # cleanly. Abbreviations come from the tz database at render time.
+  - { label: "Aotearoa New Zealand", tz: "Pacific/Auckland" }
+  - { label: "Sydney",               tz: "Australia/Sydney" }
+  - { label: "Hawaiʻi",              tz: "Pacific/Honolulu" }
+  - { label: "Vancouver",            tz: "America/Vancouver" }
+  - { label: "Los Angeles",          tz: "America/Los_Angeles" }
+  - { label: "Edmonton",             tz: "America/Edmonton" }
+  - { label: "Chicago",              tz: "America/Chicago" }
+  - { label: "Montréal / New York",  tz: "America/Toronto" }
+
+# Default moderator (a talk can override with its own `moderator:` block).
+moderator:
+  name: "Jesse Wood"
+  role: "PhD Candidate in Artificial Intelligence"
+  affiliation: ""                       # e.g. iwi / hapū, shown in italics
+  photo: ""                             # path relative to repo root, e.g. assets/people/jesse.jpg
+
+# Brand colours sampled from the Abundant Intelligences / Hiringa te Mahara logo.
+colours:
+  navy:  "272B65"
+  red:   "D32027"
+  cream: "FFEEA9"
+
+logo: "assets/ai-hiringa-te-mahara-logo.png"   # white wordmark: needs a dark background
+
+# Email sign-off. Greeting/closing are in te reo Māori.
+email:
+  greeting: "Kia ora koutou katoa,"
+  closing: "Ngā mihi nui,"
+  sender_first_name: "Jesse"
+  signature_file: "config/signature.txt"

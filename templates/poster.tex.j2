@@ -1,0 +1,151 @@
+%# =========================================================================
+%#  AI Pātaka Lecture Series — poster template (A4, XeLaTeX)
+%#  Rendered by scripts/render.py. Do not edit build/poster.tex by hand:
+%#  edit talks/<slug>/talk.yaml (content) or this file (design).
+%#  Template syntax: \VAR{expr} prints, \BLOCK{if ...} ... \BLOCK{endif} controls,
+%#  lines starting with "%#" are template comments (dropped from output).
+%# =========================================================================
+\documentclass{article}
+\usepackage[a4paper,margin=0mm]{geometry}
+\usepackage{fontspec}
+\usepackage{xcolor}
+\usepackage{graphicx}
+\usepackage{tikz}
+\usetikzlibrary{calc,positioning,shapes.geometric}
+\usepackage{qrcode}
+\usepackage[fitting,skins]{tcolorbox}
+\usepackage{ragged2e}
+\usepackage[hidelinks]{hyperref}
+
+%# ---------- fonts (fall back gracefully, e.g. on Overleaf) ----------
+\IfFontExistsTF{Inter}{\setmainfont{Inter}[UprightFont=*-Regular,BoldFont=*-Bold,ItalicFont=*-Italic,BoldItalicFont=*-BoldItalic,Extension=.otf]}%
+  {\setmainfont{TeX Gyre Heros}}
+\IfFontExistsTF{TeX Gyre Pagella}{\newfontfamily\titlefont{TeX Gyre Pagella}}{\newfontfamily\titlefont{Latin Modern Roman}}
+\IfFontExistsTF{TeX Gyre Schola}{\newfontfamily\biofont{TeX Gyre Schola}}{\newfontfamily\biofont{Latin Modern Roman}}
+
+%# ---------- brand colours (config/series.yaml) ----------
+\definecolor{navy}{HTML}{\VAR{colours.navy}}
+\definecolor{brandred}{HTML}{\VAR{colours.red}}
+\definecolor{cream}{HTML}{\VAR{colours.cream}}
+\definecolor{ink}{HTML}{1E1E2A}
+
+\pagestyle{empty}
+\setlength{\parindent}{0pt}
+
+%# A soft, irregular "blob" (like the example poster) used to frame photos.
+%# #1 = centre, #2 = radius
+\newcommand{\blobpath}[2]{%
+  plot[smooth cycle, tension=0.75] coordinates {
+    ($#1+(0:1.00*#2)$) ($#1+(55:0.92*#2)$) ($#1+(110:1.05*#2)$)
+    ($#1+(170:0.90*#2)$) ($#1+(230:1.02*#2)$) ($#1+(295:0.88*#2)$)}}
+
+%# \photoblob{centre}{radius}{image path or empty}{initials}
+\newcommand{\photoblob}[4]{%
+  \begin{scope}
+    \clip \blobpath{#1}{#2};
+    \fill[cream!60] ($#1-(1.2*#2,1.2*#2)$) rectangle ($#1+(1.2*#2,1.2*#2)$);
+    \if\relax\detokenize{#3}\relax
+      \node[text=navy, font=\titlefont\bfseries\fontsize{44}{44}\selectfont] at #1 {#4};
+    \else
+      \pgfmathsetlengthmacro{\blobd}{2.3*#2*1mm}%
+      \node[inner sep=0] at #1 {\includegraphics[width=\blobd, height=\blobd, keepaspectratio=false]{#3}};
+    \fi
+  \end{scope}
+  \draw[line width=1.2mm, brandred] \blobpath{#1}{#2};}
+
+%# One decorative tile of the strip, colours echo the logo.
+%# \tile{x}{y}{style 0-5}
+\newcommand{\tile}[3]{%
+  \pgfmathtruncatemacro{\s}{#3}%
+  \begin{scope}[shift={(#1,#2)}]
+    \ifcase\s
+      \fill[navy] (0,0) rectangle (1,1); \fill[cream] (0,0) -- (1,0) -- (0,1) -- cycle;
+    \or
+      \fill[brandred] (0,0) rectangle (1,1); \fill[cream] (0.5,0.5) circle (0.32);
+    \or
+      \fill[cream] (0,0) rectangle (1,1);
+      \fill[navy] (0,0.15) -- (0.5,0.5) -- (1,0.15) -- (1,0.4) -- (0.5,0.75) -- (0,0.4) -- cycle;
+    \or
+      \fill[navy] (0,0) rectangle (1,1); \fill[brandred] (0,0) arc (180:0:0.5) -- cycle;
+    \or
+      \fill[cream] (0,0) rectangle (1,1); \fill[brandred] (0.5,1) -- (1,0) -- (0,0) -- cycle;
+      \fill[navy] (0.5,0.33) -- (0.75,0) -- (0.25,0) -- cycle;
+    \or
+      \fill[brandred] (0,0) rectangle (1,1);
+      \draw[cream, line width=0.9mm] (0.5,0.5) circle (0.12) (0.5,0.5) circle (0.3);
+    \fi
+  \end{scope}}
+
+\begin{document}
+\topskip=0pt%
+\noindent\raisebox{-\height}[0pt][0pt]{\begin{tikzpicture}[x=1mm, y=1mm]
+  %# origin = bottom-left of the page; page is 210 x 297 mm
+  \useasboundingbox (0,0) rectangle (210,297);
+  \clip (0,0) rectangle (210,297);
+  \begin{scope}
+
+  %# ===================== header band (logo) =====================
+  \fill[navy] (0,262) rectangle (210,297);
+  \node[anchor=west] at (10,279.5) {\includegraphics[height=24mm]{\VAR{logo_abs}}};
+  \node[anchor=east, align=right, text=cream, font=\fontsize{11}{14}\selectfont] at (200,279.5)
+    {kōrero ā-ipurangi\\\textbf{virtual talk}};
+
+  %# ===================== series title =====================
+  \node[anchor=north, align=center] at (105,257) {%
+    {\color{navy}\fontsize{17}{20}\selectfont\itshape\addfontfeature{LetterSpace=10}\VAR{series.name|tex|upper}}\\[1.5mm]
+    {\color{brandred}\titlefont\bfseries\fontsize{44}{44}\selectfont \VAR{series.tagline|tex|upper}}};
+
+  %# ===================== moderator =====================
+  \photoblob{(32,204)}{17}{\VAR{moderator.photo_abs}}{\VAR{moderator.name.split()|map('first')|join|tex}}
+  \node[anchor=west, align=left, text=ink] at (58,205) {%
+    {\fontsize{13.5}{17}\selectfont kaiwhakahaere | moderated by: \textcolor{navy}{\bfseries \VAR{moderator.name|tex}}}\\[0.8mm]
+    {\fontsize{12}{15}\selectfont \VAR{moderator.role|tex}}%
+\BLOCK{if moderator.affiliation}
+    \\[0.8mm]{\fontsize{12}{15}\selectfont\bfseries\itshape \VAR{moderator.affiliation|tex}}%
+\BLOCK{endif}
+  };
+
+  %# ===================== date & time =====================
+  \node[anchor=north east, align=right, text=navy] at (200,183) {%
+    {\fontsize{21}{25}\selectfont\bfseries \VAR{date_mi|tex}}\\[0.3mm]
+    {\fontsize{13}{16}\selectfont \VAR{date_en|tex}}\\[2.5mm]
+    {\fontsize{19}{23}\selectfont \textbf{Te Wā}: \VAR{time_range_compact|tex} (\VAR{host_abbr}) via \textbf{Zoom}}};
+
+  %# ===================== talk title =====================
+  \node[anchor=north, align=center, text width=190mm, text=brandred] at (105,150) {%
+    {\titlefont\bfseries\fontsize{25}{29}\selectfont \VAR{talk.title|tex}\BLOCK{if talk.subtitle}:\\ \VAR{talk.subtitle|tex}\BLOCK{endif}}};
+
+  %# ===================== speaker bio + photo =====================
+  %# The bio box auto-shrinks its font so long bios always fit.
+  \node[anchor=north west, inner sep=0] at (10,124) {%
+    \tcboxfit[blankest, width=128mm, height=60mm, valign=top, halign=justify,
+              fit algorithm=fontsize, fit basedim=\VAR{speaker.bio_pt}pt, fit fontsize macros,
+              fontupper=\biofont, colupper=ink]{%
+      {\bfseries \VAR{speaker.full|tex}}\BLOCK{if speaker.affiliation} (\textit{\VAR{speaker.affiliation|tex}})\BLOCK{endif}\par\smallskip
+      \VAR{speaker.bio|tex}}};
+  \photoblob{(174,96)}{25}{\VAR{speaker.photo_abs}}{\VAR{speaker.name.split()|map('first')|join|tex}}
+
+  %# ===================== decorative tile strip =====================
+  \begin{scope}[x=15mm, y=15mm, shift={(0,43mm)}]
+    \foreach \i in {0,...,13} {
+      \pgfmathtruncatemacro{\a}{mod(\i*5+1,6)}
+      \tile{\i}{0}{\a}
+    }
+  \end{scope}
+
+  %# ===================== footer: QR + Zoom details =====================
+  \fill[navy] (0,0) rectangle (210,43);
+  \node[fill=white, inner sep=2mm, rounded corners=1mm] (qr) at (27,26.5)
+    {\qrcode[height=24mm]{\VAR{zoom.url|tex}}};
+  \node[below=0.6mm of qr, text=cream, font=\bfseries\fontsize{9}{10}\selectfont, align=center]
+    {hono mai ki Zoom\\[-0.5mm]join Zoom meeting};
+  \node[draw=brandred, line width=0.9mm, fill=white, rounded corners=7mm, minimum width=140mm,
+        minimum height=22mm, align=center, text=navy,
+        font=\bfseries\fontsize{17}{22}\selectfont] at (128,24)
+    {MEETING ID: \VAR{zoom.meeting_id|tex}\\PASSCODE: \VAR{zoom.passcode|tex}};
+  \node[anchor=south, text=cream!80, font=\fontsize{8}{9}\selectfont] at (128,4)
+    {Nau mai, haere mai — all are welcome};
+
+  \end{scope}
+\end{tikzpicture}}
+\end{document}

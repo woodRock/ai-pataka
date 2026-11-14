@@ -1,0 +1,41 @@
+{#- HTML body for email clients. Inline styles only (Gmail strips <style>). -#}
+<div style="font-family: Georgia, 'Times New Roman', serif; font-size: 15px; line-height: 1.5; color: #1E1E2A; max-width: 680px;">
+<p>{{ email_cfg.greeting }}</p>
+
+<p>We're excited to announce the next virtual talk of the <b>{{ series.name }} lecture series</b>: {{ speaker.full }} will be presenting <b>"{{ full_title }}"</b> on {{ date_en }}, at {{ time_start }} {{ host_abbr }} (<a href="{{ gcal_url }}">click here to add this event to your calendar</a>).</p>
+
+<p>{{ series.description }}{% if talk.series_context %} {{ talk.series_context }}{% endif %}</p>
+
+<p style="margin-bottom: 0;"><b style="color: #{{ colours.red }};">Session Description</b></p>
+<p style="margin-top: 0;">{{ talk.abstract }}</p>
+
+<p style="margin-bottom: 0;"><b style="color: #{{ colours.red }};">About the Speaker</b></p>
+<p style="margin-top: 0;">{{ speaker.bio }}</p>
+
+{#- The mail service can swap this placeholder for the rendered poster image. -#}
+<p><!-- POSTER --></p>
+
+<p>Here is the <a href="{{ zoom.url }}">Zoom link</a> for this virtual event.<br>
+(Meeting ID: {{ zoom.meeting_id }}, Passcode: {{ zoom.passcode }})</p>
+
+<p style="margin-bottom: 0;"><b>Event date and time based on time zone:</b></p>
+<p style="margin-top: 0;">
+{% for g in tz_groups %}
+<b>{{ g.date }}</b><br>
+{% for r in g.rows %}
+{{ r.range }} {{ r.abbr }} <span style="color: #666;">({{ r.label }})</span><br>
+{% endfor %}
+{% endfor %}
+</p>
+
+<p>Please feel free to forward this event to your networks. <i>Nau mai, haere mai</i>, all are welcome to join us!</p>
+<br>
+<p>{{ email_cfg.closing }}</p>
+<p>{{ email_cfg.sender_first_name }}</p>
+<p>--</p>
+<p style="font-family: Arial, sans-serif; font-size: 13px; line-height: 1.4; color: #{{ colours.navy }};">
+{% for line in signature.splitlines() %}
+{% if line.startswith('http') %}<a href="{{ line }}" style="color: #{{ colours.navy }};">{{ line }}</a>{% elif loop.first %}<b>{{ line }}</b>{% else %}{{ line }}{% endif %}<br>
+{% endfor %}
+</p>
+</div>

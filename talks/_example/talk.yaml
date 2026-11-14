@@ -1,0 +1,49 @@
+# Example talk. Copy this folder to talks/<YYYY-MM-DD-speaker-surname>/ and edit.
+# Every field is documented in CLAUDE.md.
+
+speaker:
+  honorific: "Dr"                       # optional: Dr, Prof, Matua, Whaea, Kumu ...
+  name: "Aroha Example"
+  first_name: "Aroha"                   # used in the bio paragraph
+  affiliation: "Ngāti Example"          # iwi / hapū / community, italic under the name; optional
+  photo: ""                             # e.g. talks/<slug>/speaker.jpg ; blank = placeholder
+  pronoun: "she"                        # optional; used only by AI when rewriting bios
+  bio: >-
+    Aroha Example is a researcher at an example university whose work sits at
+    the intersection of mātauranga Māori, data sovereignty and machine
+    learning. Aroha leads community-partnered projects that build AI tools
+    alongside whānau, hapū and iwi, with a focus on Indigenous data
+    governance and the ethical use of language technologies for te reo
+    Māori. Before joining academia, Aroha worked as a software engineer and
+    as a kaiako in kura kaupapa Māori. Aroha is passionate about growing the
+    next generation of Māori and Pacific researchers in computing.
+
+talk:
+  title: "Weaving Mātauranga into Machine Learning"
+  subtitle: "Data Sovereignty in Practice"   # optional, second line of the title
+  # 2-4 sentences, the "Session Description" in the email.
+  abstract: >-
+    As AI systems are trained on ever larger collections of data, questions of
+    who owns, governs and benefits from that data become urgent for
+    Indigenous peoples. In this session, we will explore how principles of
+    Māori data sovereignty can shape every stage of the machine learning
+    lifecycle, from collection to deployment. Drawing on community-led case
+    studies, we will discuss what it looks like to build AI that upholds
+    tino rangatiratanga and gives back to the communities whose knowledge
+    it draws upon.
+  # Optional sentence placing this talk in the series (like "This is the first
+  # lecture in the fifth component..."). Leave blank to omit.
+  series_context: "This kōrero is the first in our series on Indigenous data sovereignty and AI."
+
+when:
+  date: "2026-12-02"                    # in host_timezone (config/series.yaml)
+  start: "14:00"
+  end: "15:30"
+
+zoom:
+  url: "https://zoom.us/j/00000000000"
+  meeting_id: "000 0000 0000"
+  passcode: "000000"
+
+# Optional overrides
+# moderator: { name: "...", role: "...", affiliation: "...", photo: "..." }
