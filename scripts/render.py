@@ -11,6 +11,7 @@ Outputs (talks/<slug>/build/):
     poster.tex, poster.pdf     A4 poster (XeLaTeX)
     email.txt, email.html      announcement email bodies
     poster.png                 poster image for embedding in the email (needs pdftoppm)
+Also talks/<slug>/poster.png   hosted copy linked from the email, if poster_base_url is set
     email.json                 {subject, body_text, body_html, attachments, poster_image, meta}
                                -> hand this to the Pātaka mail service to create a draft
     event.ics                  calendar invite
@@ -19,6 +20,7 @@ from __future__ import annotations
 
 import argparse
 import datetime as dt
+import hashlib
 import html
 import json
 import re
@@ -26,6 +28,7 @@ import shutil
 import subprocess
 import sys
 import urllib.parse
+import urllib.request
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
@@ -203,6 +206,8 @@ def build_context(talk_dir: Path) -> dict:
         "tz_groups": groups,
         "gcal_url": gcal,
         "slug": talk_dir.name,
+        "poster_base_url": (series_cfg.get("poster_base_url") or "").strip(),
+        "poster_url": "",
     }
 
 
@@ -270,6 +275,22 @@ def html_to_text(s: str) -> str:
     return html.unescape(s)
 
 
+def check_hosted(h: dict) -> None:
+    """Warn if the hosted poster is missing or differs from this render."""
+    try:
+        with urllib.request.urlopen(h["url"], timeout=10) as r:
+            same = hashlib.sha256(r.read()).hexdigest() == h["sha"]
+        problem = None if same else "is out of date"
+    except Exception as e:  # 404 before the first push, or offline
+        problem = f"could not be fetched ({e})"
+    if problem:
+        print(f"warning: the hosted poster {problem}: {h['url']}\n"
+              f"  Commit and push {h['path']} before sending, or the email shows a broken image.\n"
+              f"  (raw.githubusercontent.com can take ~5 minutes to show a new push.)", file=sys.stderr)
+    else:
+        print(f"hosted poster is up to date: {h['url']}", file=sys.stderr)
+
+
 def compile_pdf(build: Path) -> bool:
     engine = shutil.which("latexmk")
     if engine:
@@ -310,21 +331,42 @@ def main():
     build.mkdir(exist_ok=True)
 
     (build / "poster.tex").write_text(latex_env().get_template("poster.tex.j2").render(**ctx))
-    body_html = text_env(True).get_template("email.html.j2").render(**ctx)
-    body_text = text_env(False).get_template("email.txt.j2").render(**ctx)
-    subject = text_env(False).get_template("email_subject.txt.j2").render(**ctx).strip()
-    (build / "email.html").write_text(body_html)
-    (build / "email.txt").write_text(body_text)
     (build / "event.ics").write_text(ics(ctx))
 
     has_pdf = False if args.no_pdf else compile_pdf(build)
     # Only use poster.png if it was just rebuilt from this run's PDF.
     png = build / "poster.png" if has_pdf and (build / "poster.png").exists() else None
-    # poster.png is attached as well as shown inline: Gmail's web composer
+
+    # Gmail's web composer drops inline (cid:) images when a draft is sent, so
+    # when poster_base_url is set the email links to a hosted copy instead:
+    # talks/<slug>/poster.png, which must be committed and pushed. ?v= changes
+    # with the image so mail clients and GitHub never show an old cached poster.
+    hosted = None
+    if png and ctx["poster_base_url"]:
+        tracked = talk_dir / "poster.png"
+        shutil.copyfile(png, tracked)
+        rel = tracked.relative_to(ROOT).as_posix()
+        sha = hashlib.sha256(png.read_bytes()).hexdigest()
+        url = ctx["poster_base_url"].rstrip("/") + "/" + urllib.parse.quote(rel)
+        hosted = {"path": rel, "url": url, "sha": sha}
+        ctx["poster_url"] = f"{url}?v={sha[:12]}"
+
+    body_html = text_env(True).get_template("email.html.j2").render(**ctx)
+    body_text = text_env(False).get_template("email.txt.j2").render(**ctx)
+    subject = text_env(False).get_template("email_subject.txt.j2").render(**ctx).strip()
+    (build / "email.html").write_text(body_html)
+    (build / "email.txt").write_text(body_text)
+    # The poster is attached as well as shown inline: Gmail's web composer
     # drops inline images it did not insert itself when the draft is sent,
     # so the attachment keeps the image in the email that people receive.
+    # It must be a separately named copy: given the same file for both, the
+    # mail service stores one inline part and no visible attachment.
+    png_copy = None
+    if png:
+        png_copy = build / f"{ctx['slug']}-poster.png"
+        shutil.copyfile(png, png_copy)
     attachments = [str(f.relative_to(ROOT)) for f in
-                   ([build / "poster.pdf"] if has_pdf else []) + ([png] if png else [])
+                   ([build / "poster.pdf"] if has_pdf else []) + ([png_copy] if png_copy else [])
                    + [build / "event.ics"]]
     payload = {
         "subject": subject,
@@ -333,13 +375,16 @@ def main():
         "body_text": body_text,
         "body_html": body_html,
         "attachments": attachments,
-        # Image to put where <!-- POSTER --> appears in body_html (null if not rendered).
-        "poster_image": str(png.relative_to(ROOT)) if png else None,
+        # Image to put where <!-- POSTER --> appears in body_html. Null when the
+        # body links to the hosted poster instead, or no poster was rendered.
+        "poster_image": str(png.relative_to(ROOT)) if png and not hosted else None,
         "meta": {"series": ctx["series"]["name"], "slug": ctx["slug"],
                  "start_utc": ctx["start"].astimezone(ZoneInfo("UTC")).isoformat(),
                  "calendar_url": ctx["gcal_url"]},
     }
     (build / "email.json").write_text(json.dumps(payload, ensure_ascii=False, indent=2))
+    if hosted:
+        check_hosted(hosted)
     print(f"rendered {build.relative_to(ROOT)}/ : "
           + ", ".join(sorted(p.name for p in build.iterdir() if not p.name.endswith(".log"))),
           file=sys.stderr)
