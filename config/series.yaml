@@ -49,6 +49,12 @@ colours:
   red:   "D32027"
   cream: "FFEEA9"
 
+# Where the email's poster image is hosted. The email links to
+# <poster_base_url>/talks/<slug>/poster.png, so commit and push that file
+# before sending. Blank -> poster is embedded inline instead (Gmail's web
+# composer drops inline images on send; the attached PNG still arrives).
+poster_base_url: "https://raw.githubusercontent.com/woodRock/ai-pataka/main"
+
 logo: "assets/ai-hiringa-te-mahara-logo.png"   # white wordmark: needs a dark background
 
 # Email sign-off. Greeting/closing are in te reo Māori.

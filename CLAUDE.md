@@ -38,7 +38,8 @@ When asked to draft an announcement for a new talk:
      ratio is fine (auto square-cropped). Blank → initials placeholder.
 3. `python3 scripts/render.py talks/<slug>` (add `--no-pdf` if XeLaTeX is unavailable).
 4. Look at `build/poster.png` to check the layout, and read `build/email.txt` back to the user.
-5. Hand `build/email.json` to the Pātaka mail service to create the draft (see below).
+5. Commit and push `talks/<slug>/poster.png` (the email links to the hosted copy).
+6. Hand `build/email.json` to the Pātaka mail service to create the draft (see below).
    Never send email directly — only create drafts for the user to review.
 
 To change wording for **every** email, edit `templates/email.*.j2` (keep `.txt` and `.html` in sync).
@@ -78,15 +79,25 @@ moderator: {name, role, affiliation, photo}   # optional override of config defa
   "to": [], "cc": [],
   "body_text": "plain-text body",
   "body_html": "HTML body; contains <!-- POSTER --> where the poster image should be inlined",
-  "attachments": ["talks/<slug>/build/poster.pdf", "talks/<slug>/build/poster.png", "talks/<slug>/build/event.ics"],
+  "attachments": ["talks/<slug>/build/poster.pdf", "talks/<slug>/build/<slug>-poster.png", "talks/<slug>/build/event.ics"],
   "poster_image": "talks/<slug>/build/poster.png",
   "meta": {"series": "...", "slug": "...", "start_utc": "ISO-8601", "calendar_url": "Google Calendar add link"}
 }
 ```
 Paths are relative to the repo root. `to`/`cc` are left empty for the user to fill.
-`poster.png` is both inlined and attached: Gmail's web composer drops inline images it did not
-insert itself when a draft is sent, so the attachment keeps the poster in the delivered email.
-PNG and PDF are only included when the PDF was rebuilt in that run (not with `--no-pdf`).
+**Poster in the email body.** Gmail's web composer drops inline (`cid:`) images it did not insert
+itself when a draft is sent. So when `poster_base_url` is set in `config/series.yaml`, `render.py`
+copies the poster to `talks/<slug>/poster.png` (tracked in git) and the HTML body links to
+`<poster_base_url>/talks/<slug>/poster.png?v=<hash>`; `poster_image` is then `null`.
+**Commit and push `talks/<slug>/poster.png` before creating the draft** — `render.py` warns if the
+hosted copy is missing or out of date (raw.githubusercontent.com can lag ~5 min after a push).
+With `poster_base_url` blank, the body keeps the `<!-- POSTER -->` placeholder for an inline copy.
+Either way a copy, `<slug>-poster.png`, is attached (it needs its own name: given the same file
+twice, the mail service stores only the inline part). PNG and PDF are only included when the PDF
+was rebuilt in that run (not with `--no-pdf`).
+
+The repo is public, so everything committed under `talks/` (photos, Zoom links and passcodes,
+posters) is public too.
 
 ## Te reo Māori used
 

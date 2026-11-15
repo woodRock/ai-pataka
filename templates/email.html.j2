@@ -12,8 +12,13 @@
 <p style="margin-bottom: 0;"><b style="color: #{{ colours.red }};">About the Speaker</b></p>
 <p style="margin-top: 0;">{{ speaker.bio }}</p>
 
-{#- The mail service can swap this placeholder for the rendered poster image. -#}
+{#- Hosted poster if poster_base_url is set (survives Gmail sends); otherwise a
+    placeholder the mail service swaps for an inline copy of the poster. -#}
+{% if poster_url %}
+<p><img src="{{ poster_url }}" alt="Poster: {{ full_title }}" width="600" style="display: block; width: 100%; max-width: 600px; height: auto; border: 0;"></p>
+{% else %}
 <p><!-- POSTER --></p>
+{% endif %}
 
 <p>Here is the <a href="{{ zoom.url }}">Zoom link</a> for this virtual event.<br>
 (Meeting ID: {{ zoom.meeting_id }}, Passcode: {{ zoom.passcode }})</p>
