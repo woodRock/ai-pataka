@@ -101,4 +101,7 @@ If you add new te reo text, flag it to the user for checking rather than guessin
   lines starting `%#` are template comments. Always pass strings through `|tex` to escape LaTeX.
 - Time-zone list is labelled by city because some Canadian provinces now use permanent
   daylight time; abbreviations come from the tz database at render time.
+- `event.ics` keeps the same `UID` per talk and sets `SEQUENCE` to minutes since 2026 at render
+  time, so a re-rendered invite (e.g. after a time change) replaces the old event in calendars.
+  To reschedule a talk that has been announced, edit `talk.yaml`, re-render and send the new invite.
 - Verify changes by rendering `talks/_example` and viewing `build/poster.png`.

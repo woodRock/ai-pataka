@@ -235,6 +235,12 @@ def ics(ctx: dict) -> str:
 
     utc = ZoneInfo("UTC")
     f = "%Y%m%dT%H%M%SZ"
+    now = dt.datetime.now(utc)
+    # SEQUENCE must grow each time a sent invite changes, or calendar apps
+    # treat the update as stale and keep the old time. Minutes since 2026
+    # grows on every render, so a re-rendered invite always supersedes the
+    # last one without anyone having to bump a number by hand.
+    sequence = int((now - dt.datetime(2026, 1, 1, tzinfo=utc)).total_seconds() // 60)
     desc = (f"{ctx['speaker']['full']} — {ctx['full_title']}\n\n{ctx['talk']['abstract']}\n\n"
             f"Zoom: {ctx['zoom']['url']}\nMeeting ID: {ctx['zoom']['meeting_id']}\n"
             f"Passcode: {ctx['zoom']['passcode']}")
@@ -242,7 +248,9 @@ def ics(ctx: dict) -> str:
         "BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//AI Pataka//Lecture Series//EN", "METHOD:PUBLISH",
         "BEGIN:VEVENT",
         f"UID:{ctx['slug']}@ai-pataka",
-        f"DTSTAMP:{dt.datetime.now(utc):{f}}",
+        f"DTSTAMP:{now:{f}}",
+        f"LAST-MODIFIED:{now:{f}}",
+        f"SEQUENCE:{sequence}",
         f"DTSTART:{ctx['start'].astimezone(utc):{f}}",
         f"DTEND:{ctx['end'].astimezone(utc):{f}}",
         f"SUMMARY:{esc(ctx['series']['name'] + ' Lecture: ' + ctx['full_title'])}",
