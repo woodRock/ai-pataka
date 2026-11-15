@@ -41,7 +41,7 @@ moderator:
   name: "Jesse Wood"
   role: "Postdoctoral Researcher in Artificial Intelligence"
   affiliation: ""                       # e.g. iwi / hapū, shown in italics
-  photo: ""                             # path relative to repo root, e.g. assets/people/jesse.jpg
+  photo: "assets/people/jesse.jpg"      # path relative to repo root
 
 # Brand colours sampled from the Abundant Intelligences / Hiringa te Mahara logo.
 colours:
