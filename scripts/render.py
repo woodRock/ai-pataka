@@ -286,7 +286,9 @@ def compile_pdf(build: Path) -> bool:
         sys.exit("error: LaTeX compile failed (see log above / build/poster.log)")
     for ext in ("aux", "fls", "fdb_latexmk", "xdv", "out"):
         (build / f"poster.{ext}").unlink(missing_ok=True)
-    # PNG version for embedding inline in the email body.
+    # PNG version for embedding inline in the email body. Remove the old one
+    # first so a stale poster is never used if pdftoppm is missing or fails.
+    (build / "poster.png").unlink(missing_ok=True)
     if shutil.which("pdftoppm"):
         subprocess.run(["pdftoppm", "-png", "-r", "110", "-singlefile", "poster.pdf", "poster"],
                        cwd=build, check=False)
@@ -316,8 +318,14 @@ def main():
     (build / "event.ics").write_text(ics(ctx))
 
     has_pdf = False if args.no_pdf else compile_pdf(build)
-    attachments = ([str((build / "poster.pdf").relative_to(ROOT))] if has_pdf else []) + \
-                  [str((build / "event.ics").relative_to(ROOT))]
+    # Only use poster.png if it was just rebuilt from this run's PDF.
+    png = build / "poster.png" if has_pdf and (build / "poster.png").exists() else None
+    # poster.png is attached as well as shown inline: Gmail's web composer
+    # drops inline images it did not insert itself when the draft is sent,
+    # so the attachment keeps the image in the email that people receive.
+    attachments = [str(f.relative_to(ROOT)) for f in
+                   ([build / "poster.pdf"] if has_pdf else []) + ([png] if png else [])
+                   + [build / "event.ics"]]
     payload = {
         "subject": subject,
         "to": [],
@@ -326,7 +334,7 @@ def main():
         "body_html": body_html,
         "attachments": attachments,
         # Image to put where <!-- POSTER --> appears in body_html (null if not rendered).
-        "poster_image": str((build / "poster.png").relative_to(ROOT)) if (build / "poster.png").exists() else None,
+        "poster_image": str(png.relative_to(ROOT)) if png else None,
         "meta": {"series": ctx["series"]["name"], "slug": ctx["slug"],
                  "start_utc": ctx["start"].astimezone(ZoneInfo("UTC")).isoformat(),
                  "calendar_url": ctx["gcal_url"]},
