@@ -356,15 +356,17 @@ def main():
     subject = text_env(False).get_template("email_subject.txt.j2").render(**ctx).strip()
     (build / "email.html").write_text(body_html)
     (build / "email.txt").write_text(body_text)
-    # The poster is attached as well as shown inline: Gmail's web composer
-    # drops inline images it did not insert itself when the draft is sent,
-    # so the attachment keeps the image in the email that people receive.
-    # It must be a separately named copy: given the same file for both, the
-    # mail service stores one inline part and no visible attachment.
-    png_copy = None
-    if png:
-        png_copy = build / f"{ctx['slug']}-poster.png"
+    # With a hosted poster the body links to it, so no PNG is attached. When
+    # inlined instead, Gmail's web composer drops the inline image on send,
+    # so a PNG is attached as a fallback. It must be a separately named copy:
+    # given the same file for both, the mail service stores one inline part
+    # and no visible attachment.
+    png_copy = build / f"{ctx['slug']}-poster.png"
+    png_copy.unlink(missing_ok=True)
+    if png and not hosted:
         shutil.copyfile(png, png_copy)
+    else:
+        png_copy = None
     attachments = [str(f.relative_to(ROOT)) for f in
                    ([build / "poster.pdf"] if has_pdf else []) + ([png_copy] if png_copy else [])
                    + [build / "event.ics"]]
