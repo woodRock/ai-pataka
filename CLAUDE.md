@@ -78,12 +78,15 @@ moderator: {name, role, affiliation, photo}   # optional override of config defa
   "to": [], "cc": [],
   "body_text": "plain-text body",
   "body_html": "HTML body; contains <!-- POSTER --> where the poster image should be inlined",
-  "attachments": ["talks/<slug>/build/poster.pdf", "talks/<slug>/build/event.ics"],
+  "attachments": ["talks/<slug>/build/poster.pdf", "talks/<slug>/build/poster.png", "talks/<slug>/build/event.ics"],
   "poster_image": "talks/<slug>/build/poster.png",
   "meta": {"series": "...", "slug": "...", "start_utc": "ISO-8601", "calendar_url": "Google Calendar add link"}
 }
 ```
 Paths are relative to the repo root. `to`/`cc` are left empty for the user to fill.
+`poster.png` is both inlined and attached: Gmail's web composer drops inline images it did not
+insert itself when a draft is sent, so the attachment keeps the poster in the delivered email.
+PNG and PDF are only included when the PDF was rebuilt in that run (not with `--no-pdf`).
 
 ## Te reo Māori used
 
