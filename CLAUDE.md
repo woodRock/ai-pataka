@@ -79,7 +79,7 @@ moderator: {name, role, affiliation, photo}   # optional override of config defa
   "to": [], "cc": [],
   "body_text": "plain-text body",
   "body_html": "HTML body; contains <!-- POSTER --> where the poster image should be inlined",
-  "attachments": ["talks/<slug>/build/poster.pdf", "talks/<slug>/build/<slug>-poster.png", "talks/<slug>/build/event.ics"],
+  "attachments": ["talks/<slug>/build/poster.pdf", "talks/<slug>/build/event.ics"],
   "poster_image": "talks/<slug>/build/poster.png",
   "meta": {"series": "...", "slug": "...", "start_utc": "ISO-8601", "calendar_url": "Google Calendar add link"}
 }
@@ -91,8 +91,9 @@ copies the poster to `talks/<slug>/poster.png` (tracked in git) and the HTML bod
 `<poster_base_url>/talks/<slug>/poster.png?v=<hash>`; `poster_image` is then `null`.
 **Commit and push `talks/<slug>/poster.png` before creating the draft** — `render.py` warns if the
 hosted copy is missing or out of date (raw.githubusercontent.com can lag ~5 min after a push).
-With `poster_base_url` blank, the body keeps the `<!-- POSTER -->` placeholder for an inline copy.
-Either way a copy, `<slug>-poster.png`, is attached (it needs its own name: given the same file
+No PNG is attached in that case (the PDF still is). With `poster_base_url` blank, the body keeps
+the `<!-- POSTER -->` placeholder for an inline copy, and a copy, `<slug>-poster.png`, is also
+attached because Gmail drops the inline one on send (it needs its own name: given the same file
 twice, the mail service stores only the inline part). PNG and PDF are only included when the PDF
 was rebuilt in that run (not with `--no-pdf`).
 
