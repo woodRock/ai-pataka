@@ -8,7 +8,7 @@ Poster and email templates for the **AI Pātaka Lecture Series**, hosted by the
 ## Quick start
 
 ```bash
-pip install -r requirements.txt          # jinja2, pyyaml, pillow
+pip install -r requirements.txt          # jinja2, pyyaml, pillow, tzdata
 # LaTeX (for the PDF): apt install texlive-xetex texlive-latex-extra   |  macOS: MacTeX
 
 python3 scripts/new_talk.py 2026-12-02-surname     # creates talks/2026-12-02-surname/talk.yaml

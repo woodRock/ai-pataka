@@ -95,7 +95,7 @@ If you add new te reo text, flag it to the user for checking rather than guessin
 
 ## Conventions
 
-- Python 3.9+, deps in `requirements.txt` (`jinja2`, `pyyaml`, optional `pillow`). LaTeX: XeLaTeX
+- Python 3.9+, deps in `requirements.txt` (`jinja2`, `pyyaml`, `tzdata`, optional `pillow`). LaTeX: XeLaTeX
   with `tikz`, `qrcode`, `tcolorbox` (TeX Live `texlive-xetex texlive-latex-extra`). Works on Overleaf (XeLaTeX compiler) if you upload `build/poster.tex` + the logo.
 - Poster template syntax: `\VAR{expr}` prints, `\BLOCK{if …}…\BLOCK{endif}` for control flow,
   lines starting `%#` are template comments. Always pass strings through `|tex` to escape LaTeX.
